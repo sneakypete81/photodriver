@@ -8,6 +8,8 @@ Download Google Photos from your browser using Selenium Webdriver.
 pip install photodriver
 ```
 
+Selenium requires [geckodriver](https://github.com/mozilla/geckodriver/releases) to be installed and on the PATH.
+
 ## Development
 
 Requires [Poetry](https://poetry.eustace.io/).
