@@ -6,14 +6,21 @@ COOKIE_FILE = ".cookies"
 
 
 def main():
-    driver = webdriver.Firefox(firefox_profile="photodriver")
+    photos = Photos()
 
+    profile = webdriver.FirefoxProfile()
+    for preference in photos.get_firefox_preferences():
+        profile.set_preference(*preference)
+
+    driver = webdriver.Firefox(profile)
     try:
-        photos = Photos(driver)
-
+        photos.set_driver(driver)
         photos.load_cookies(COOKIE_FILE)
         photos.login()
         photos.save_cookies(COOKIE_FILE)
+
+        photos.select_all()
+        print(photos.download_selected_photos())
 
     finally:
         driver.close()
