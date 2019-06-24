@@ -1,5 +1,6 @@
 /.python-version
 __pycache__
+.pytest_cache/
 /.vscode/
 /dist/
 geckodriver.log
