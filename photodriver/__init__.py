@@ -1,4 +1,4 @@
-from .__main__ import photodriver
+from .photodriver import photodriver
 
 __version__ = "0.1.0"
 

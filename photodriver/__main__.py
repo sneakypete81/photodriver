@@ -5,11 +5,8 @@ import sys
 import argparse
 from datetime import date
 from dateutil.parser import parse
-from selenium import webdriver
 
-from .photos import Photos
-
-COOKIE_FILE = ".cookies"
+from .photodriver import photodriver
 
 
 def main():
@@ -38,27 +35,6 @@ def parse_arguments(args=sys.argv[1:]):
         options.stop = parse(options.stop, default=date(current_year, 1, 1))
 
     return dict(start_date=options.start, stop_date=options.stop)
-
-
-def photodriver(start_date, stop_date):
-    photos = Photos()
-
-    profile = webdriver.FirefoxProfile()
-    for preference in photos.get_firefox_preferences():
-        profile.set_preference(*preference)
-
-    driver = webdriver.Firefox(profile)
-    try:
-        photos.set_driver(driver)
-        photos.load_cookies(COOKIE_FILE)
-        photos.login()
-        photos.save_cookies(COOKIE_FILE)
-
-        photos.select_all()
-        print(photos.download_selected_photos())
-
-    finally:
-        driver.close()
 
 
 if __name__ == "__main__":
