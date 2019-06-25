@@ -1,32 +1,22 @@
-import pickle
-import tempfile
+from datetime import timedelta
 from pathlib import Path
+import pickle
 
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import InvalidCookieDomainException
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+from .photo_scroller import PhotoScroller
 
 
 class Photos:
     URL = "https://photos.google.com"
     TITLE = "Photos - Google Photos"
 
-    def __init__(self):
-        self.driver = None
-        self._download_dir = tempfile.TemporaryDirectory(prefix="photodriver_download_")
-
-    def set_driver(self, driver):
+    def __init__(self, driver):
         self.driver = driver
-
-    def get_firefox_preferences(self):
-        return [
-            ("browser.download.folderList", 2),
-            ("browser.download.dir", self._download_dir.name),
-            ("browser.download.useDownloadDir", True),
-            ("browser.helperApps.neverAsk.saveToDisk", "application/zip"),
-        ]
+        self.scroll = PhotoScroller(driver)
 
     def login(self):
         self.driver.get(self.URL + "/login")
@@ -54,57 +44,44 @@ class Photos:
             except InvalidCookieDomainException:
                 pass
 
-    def select_all(self):
-        checkboxes = _get_checkboxes(self.driver)
+    def select_range(self, start_date, stop_date):
+        self.driver.body.click()
+        checkboxes = self.scroll.get_visible_checkboxes()
+
         if len(checkboxes) == 0:
-            return
+            return 0
 
-        checkboxes[0].click()
+        last_checkbox = self.scroll.to_bottom()
+
+        if start_date is None:
+            start_checkbox = last_checkbox
+        else:
+            start_checkbox = self.scroll.up_to_checkbox(start_date)
+
+        start_checkbox.click()
+
         if len(checkboxes) == 1:
-            return
+            return 1
 
-        wait = WebDriverWait(self.driver, timeout=10, poll_frequency=0.1)
-        wait.until(pressing_key_causes_scroll(Keys.END))
+        if stop_date is None:
+            stop_checkbox = self.scroll.to_top()
+        else:
+            one_day = timedelta(days=1)
+            self.scroll.up_to_checkbox(stop_date)
+            stop_checkbox = self.scroll.down_to_checkbox(stop_date - one_day)
 
-        checkboxes = _get_checkboxes(self.driver)
+        stop_checkbox.shift_click()
 
-        actions = ActionChains(self.driver)
-        actions.key_down(Keys.SHIFT)
-        actions.click(checkboxes[-1])
-        actions.key_up(Keys.SHIFT)
-        actions.perform()
+        return self.driver.selection_count
 
     def download_selected_photos(self):
-        _get_body(self.driver).send_keys(Keys.SHIFT + "D")
-        download_file = Path(self._download_dir.name) / "Photos.zip"
+        self.driver.body.send_keys(Keys.SHIFT + "D")
+        download_file = Path(self.driver.download_dir.name) / "Photos.zip"
 
         wait = WebDriverWait(self.driver, timeout=60, poll_frequency=0.1)
         wait.until(path_exists(download_file))
 
         return download_file
-
-    def _get_body(self):
-        return self.driver.find_element_by_tag_name("body")
-
-
-class pressing_key_causes_scroll:
-    def __init__(self, key):
-        self.key = key
-
-    def __call__(self, driver):
-        locations = self._get_checkbox_locations(driver)
-
-        _get_body(driver).send_keys(self.key)
-
-        new_locations = self._get_checkbox_locations(driver)
-        return new_locations != locations
-
-    @staticmethod
-    def _get_checkbox_locations(driver):
-        locations = {}
-        for checkbox in _get_checkboxes(driver):
-            locations[checkbox] = checkbox.location
-        return locations
 
 
 class path_exists:
@@ -113,11 +90,3 @@ class path_exists:
 
     def __call__(self, _):
         return self.path.exists()
-
-
-def _get_body(driver):
-    return driver.find_element_by_tag_name("body")
-
-
-def _get_checkboxes(driver):
-    return driver.find_elements_by_xpath("//div[contains(@aria-label, 'Photo - ')]")

@@ -1,25 +1,19 @@
-from selenium import webdriver
-
+from .driver import Driver
 from .photos import Photos
 
 COOKIE_FILE = ".cookies"
 
 
 def photodriver(start_date, stop_date):
-    photos = Photos()
-
-    profile = webdriver.FirefoxProfile()
-    for preference in photos.get_firefox_preferences():
-        profile.set_preference(*preference)
-
-    driver = webdriver.Firefox(profile)
+    driver = Driver()
     try:
-        photos.set_driver(driver)
+        photos = Photos(driver)
         photos.load_cookies(COOKIE_FILE)
         photos.login()
         photos.save_cookies(COOKIE_FILE)
 
-        photos.select_all()
+        count = photos.select_range(start_date, stop_date)
+        print(f"Downloaded {count} photos.")
         print(photos.download_selected_photos())
 
     finally:
