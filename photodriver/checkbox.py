@@ -16,6 +16,8 @@ class Checkbox:
     def shift_click(self):
         actions = ActionChains(self.element.parent)
         actions.key_down(Keys.SHIFT)
+        actions.pause(0.5)
         actions.click(self.element)
+        actions.pause(0.5)
         actions.key_up(Keys.SHIFT)
         actions.perform()
