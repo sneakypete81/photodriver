@@ -1,3 +1,4 @@
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -11,24 +12,47 @@ class PhotoScroller:
 
     def to_top(self):
         wait = WebDriverWait(self.driver, timeout=10, poll_frequency=0.1)
-        wait.until(pressing_key_causes_scroll(Keys.HOME))
+        try:
+            wait.until(pressing_key_causes_scroll(Keys.HOME))
+        except TimeoutException:
+            pass
 
         return self.get_visible_checkboxes()[0]
 
     def to_bottom(self):
         wait = WebDriverWait(self.driver, timeout=10, poll_frequency=0.1)
-        wait.until(pressing_key_causes_scroll(Keys.END))
+        try:
+            wait.until(pressing_key_causes_scroll(Keys.END))
+        except TimeoutException:
+            pass
 
         return self.get_visible_checkboxes()[-1]
 
-    def up_to_checkbox(self, date):
-        while True:
-            for checkbox in reversed(self.get_visible_checkboxes()):
-                if checkbox.date >= date:
-                    return checkbox
+    def down_to_checkbox(self, date):
+        try:
+            while True:
+                for checkbox in self.get_visible_checkboxes():
+                    if checkbox.date <= date:
+                        return checkbox
 
-            wait = WebDriverWait(self.driver, timeout=10, poll_frequency=0.1)
-            wait.until(pressing_key_causes_scroll(Keys.PAGE_UP))
+                wait = WebDriverWait(self.driver, timeout=10, poll_frequency=0.1)
+                wait.until(pressing_key_causes_scroll(Keys.PAGE_DOWN))
+
+        except TimeoutException:
+            return self.get_visible_checkboxes()[-1]
+
+    def up_to_checkbox(self, date):
+        try:
+            while True:
+                for checkbox in reversed(self.get_visible_checkboxes()):
+                    if checkbox.date >= date:
+                        return checkbox
+
+                wait = WebDriverWait(self.driver, timeout=10, poll_frequency=0.1)
+                wait.until(pressing_key_causes_scroll(Keys.PAGE_UP))
+
+        except TimeoutException:
+            return self.get_visible_checkboxes()[0]
 
 
 class pressing_key_causes_scroll:
