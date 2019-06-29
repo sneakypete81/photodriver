@@ -65,6 +65,14 @@ class pressing_key_causes_scroll:
         driver.body.send_keys(self.key)
 
         new_locations = self._get_checkbox_locations(driver)
+
+        # For some reason, locations sometimes come back as (0, 0). Just ignore these.
+        for label in new_locations:
+            if new_locations[label] == dict(x=0, y=0):
+                locations[label] = dict(x=0, y=0)
+            elif locations[label] == dict(x=0, y=0):
+                new_locations[label] = dict(x=0, y=0)
+
         return new_locations != locations
 
     @staticmethod
