@@ -5,3 +5,4 @@ __pycache__
 /dist/
 geckodriver.log
 .cookies
+/scripts/test-*.jpg
