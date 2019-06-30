@@ -1,4 +1,4 @@
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -79,5 +79,8 @@ class pressing_key_causes_scroll:
     def _get_checkbox_locations(driver):
         locations = {}
         for checkbox in driver.visible_checkboxes:
-            locations[checkbox.label] = checkbox.element.location
+            try:
+                locations[checkbox.label] = checkbox.element.location
+            except StaleElementReferenceException:
+                pass
         return locations

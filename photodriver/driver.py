@@ -1,5 +1,6 @@
 import tempfile
 from selenium import webdriver
+from selenium.common.exceptions import StaleElementReferenceException
 
 from .checkbox import Checkbox
 
@@ -32,7 +33,10 @@ class Driver(webdriver.Firefox):
             "//div[contains(@aria-label, 'Photo - ')]"
         )
         for element in elements:
-            yield Checkbox(element)
+            try:
+                yield Checkbox(element)
+            except StaleElementReferenceException:
+                pass
 
     @property
     def selection_count(self):
