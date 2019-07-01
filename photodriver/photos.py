@@ -1,6 +1,7 @@
 from datetime import timedelta
 from pathlib import Path
 import pickle
+from zipfile import ZipFile
 
 from selenium.common.exceptions import InvalidCookieDomainException
 from selenium.webdriver.common.keys import Keys
@@ -74,19 +75,20 @@ class Photos:
 
         return self.driver.selection_count
 
-    def download_selected_photos(self):
+    def download_selected_photos(self, output_path):
         self.driver.body.send_keys(Keys.SHIFT + "D")
         download_file = Path(self.driver.download_dir.name) / "Photos.zip"
 
         wait = WebDriverWait(self.driver, timeout=60, poll_frequency=0.1)
-        wait.until(path_exists(download_file))
+        wait.until(download_complete(download_file))
 
-        return download_file
+        ZipFile(download_file).extractall(output_path)
 
 
-class path_exists:
-    def __init__(self, path):
-        self.path = path
+class download_complete:
+    def __init__(self, download_file):
+        self.download_file = download_file
 
     def __call__(self, _):
-        return self.path.exists()
+        part_files = list(self.download_file.parent.glob("*.part"))
+        return self.download_file.exists() and part_files == []

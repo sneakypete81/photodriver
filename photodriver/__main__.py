@@ -18,6 +18,11 @@ def parse_arguments(args=sys.argv[1:]):
         description=__doc__, formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument(
+        "output_path",
+        metavar="OUTPUT_DIR",
+        help="Destination directory for downloaded photos",
+    )
+    parser.add_argument(
         "--start",
         default=None,
         help="Start downloading from this date (default: no limit)",
@@ -34,7 +39,11 @@ def parse_arguments(args=sys.argv[1:]):
     if options.stop is not None:
         options.stop = parse(options.stop, default=date(current_year, 1, 1))
 
-    return dict(start_date=options.start, stop_date=options.stop)
+    return dict(
+        output_path=options.output_path,
+        start_date=options.start,
+        stop_date=options.stop,
+    )
 
 
 if __name__ == "__main__":
