@@ -7,3 +7,4 @@ geckodriver.log
 .cookies
 .test-cookies
 /scripts/test-*.jpg
+/tests/.functional.password
