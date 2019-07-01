@@ -4,6 +4,7 @@ import pickle
 from zipfile import ZipFile
 
 from selenium.common.exceptions import InvalidCookieDomainException
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -19,8 +20,20 @@ class Photos:
         self.driver = driver
         self.scroll = PhotoScroller(driver)
 
-    def login(self):
+    def login(self, email=None, password=None):
         self.driver.get(self.URL + "/login")
+
+        if email is not None:
+            self.driver.find_element_by_id("identifierId").send_keys(email + Keys.ENTER)
+
+            if password is not None:
+                WebDriverWait(self.driver, 60).until(
+                    EC.visibility_of_element_located((By.NAME, "password"))
+                )
+                self.driver.find_element_by_name("password").send_keys(
+                    password + Keys.ENTER
+                )
+
         if self.driver.title != self.TITLE:
             print("Please sign in to your account using the browser...")
             WebDriverWait(self.driver, 600).until(EC.title_is(self.TITLE))
