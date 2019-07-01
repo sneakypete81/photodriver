@@ -1,5 +1,5 @@
-from .photodriver import photodriver
+from .photodriver import run
 
 __version__ = "0.1.0"
 
-__all__ = [photodriver]
+__all__ = [run]

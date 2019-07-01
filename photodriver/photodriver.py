@@ -4,7 +4,7 @@ from .photos import Photos
 DEFAULT_COOKIE_FILE = ".cookies"
 
 
-def photodriver(start_date, stop_date, cookie_file=None):
+def run(start_date, stop_date, cookie_file=None):
     if cookie_file is None:
         cookie_file = DEFAULT_COOKIE_FILE
 

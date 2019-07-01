@@ -6,11 +6,11 @@ import argparse
 from datetime import date
 from dateutil.parser import parse
 
-from .photodriver import photodriver
+from . import photodriver
 
 
 def main():
-    photodriver(**parse_arguments())
+    photodriver.run(**parse_arguments())
 
 
 def parse_arguments(args=sys.argv[1:]):
