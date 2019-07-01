@@ -1,11 +1,12 @@
 from pathlib import Path
 
-from hamcrest import assert_that, only_contains, has_properties, has_length
+from hamcrest import assert_that, is_
 import pytest
 
 import photodriver
 from photodriver.driver import Driver
 from photodriver.photos import Photos
+from .test_images import photo_list
 
 TEST_COOKIE_FILE = ".test-cookies"
 
@@ -33,15 +34,19 @@ def patched_driver(logged_in_driver, monkeypatch):
 
 
 @pytest.mark.functional
+@pytest.mark.parametrize(
+    "date_range, expected_filenames", [((None, None), photo_list.FILENAMES)]
+)
 class TestFunctional:
-    def test_download_all(self, tmp_path, patched_driver):
+    def test_download_all(
+        self, tmp_path, patched_driver, date_range, expected_filenames
+    ):
         photodriver.run(
             output_path=tmp_path,
-            start_date=None,
-            stop_date=None,
+            start_date=date_range[0],
+            stop_date=date_range[1],
             cookie_file=TEST_COOKIE_FILE,
         )
-        files = list(tmp_path.iterdir())
+        filenames = [f.name for f in tmp_path.iterdir()]
 
-        assert_that(files, has_length(37))
-        assert_that(files, only_contains(has_properties(suffix=".jpg")))
+        assert_that(sorted(filenames), is_(expected_filenames))

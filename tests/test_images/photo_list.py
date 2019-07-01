@@ -1,10 +1,5 @@
-#!/usr/bin/env python
-
 from datetime import datetime
-from pathlib import Path
-import shutil
 
-import piexif
 
 DATES = [
     datetime(2018, 1, 1, 9, 0, 0),
@@ -13,8 +8,6 @@ DATES = [
     datetime(2018, 1, 31, 9, 0, 0),
     datetime(2018, 1, 31, 10, 0, 0),
     datetime(2018, 2, 1, 9, 0, 0),
-    datetime(2018, 4, 2, 9, 0, 0),
-    datetime(2018, 5, 31, 9, 0, 0),
     datetime(2018, 2, 2, 9, 0, 0),
     datetime(2018, 2, 3, 9, 0, 0),
     datetime(2018, 2, 3, 10, 0, 0),
@@ -44,14 +37,8 @@ DATES = [
     datetime(2018, 3, 16, 9, 0, 0),
     datetime(2018, 3, 17, 9, 0, 0),
     datetime(2018, 3, 18, 9, 0, 0),
+    datetime(2018, 4, 2, 9, 0, 0),
+    datetime(2018, 5, 31, 9, 0, 0),
 ]
 
-THIS_DIR = Path(__file__).parent
-
-for date in DATES:
-    dest_file = THIS_DIR / date.strftime("test-%Y%m%d-%H%M%S.jpg")
-    shutil.copyfile(THIS_DIR / "test.jpg", dest_file)
-    exif = piexif.dump(
-        {"0th": {piexif.ImageIFD.DateTime: date.strftime("%Y:%m:%d %H:%M:%S")}}
-    )
-    piexif.insert(exif, str(dest_file))
+FILENAMES = [date.strftime("test-%Y%m%d-%H%M%S.jpg") for date in DATES]

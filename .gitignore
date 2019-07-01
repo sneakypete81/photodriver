@@ -6,5 +6,5 @@ __pycache__
 geckodriver.log
 .cookies
 .test-cookies
-/scripts/test-*.jpg
+/tests/test_images/test-*.jpg
 /tests/.functional.password
