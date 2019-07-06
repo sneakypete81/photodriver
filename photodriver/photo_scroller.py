@@ -11,7 +11,7 @@ class PhotoScroller:
         return list(self.driver.visible_checkboxes)
 
     def to_top(self):
-        wait = WebDriverWait(self.driver, timeout=10, poll_frequency=0.1)
+        wait = WebDriverWait(self.driver, timeout=2, poll_frequency=0.5)
         try:
             wait.until(pressing_key_causes_scroll(Keys.HOME))
         except TimeoutException:
@@ -20,7 +20,7 @@ class PhotoScroller:
         return self.get_visible_checkboxes()[0]
 
     def to_bottom(self):
-        wait = WebDriverWait(self.driver, timeout=10, poll_frequency=0.1)
+        wait = WebDriverWait(self.driver, timeout=2, poll_frequency=0.5)
         try:
             wait.until(pressing_key_causes_scroll(Keys.END))
         except TimeoutException:
@@ -35,7 +35,7 @@ class PhotoScroller:
                     if checkbox.date <= date:
                         return checkbox
 
-                wait = WebDriverWait(self.driver, timeout=10, poll_frequency=0.1)
+                wait = WebDriverWait(self.driver, timeout=2, poll_frequency=0.5)
                 wait.until(pressing_key_causes_scroll(Keys.PAGE_DOWN))
 
         except TimeoutException:
@@ -48,7 +48,7 @@ class PhotoScroller:
                     if checkbox.date >= date:
                         return checkbox
 
-                wait = WebDriverWait(self.driver, timeout=10, poll_frequency=0.1)
+                wait = WebDriverWait(self.driver, timeout=2, poll_frequency=0.5)
                 wait.until(pressing_key_causes_scroll(Keys.PAGE_UP))
 
         except TimeoutException:
