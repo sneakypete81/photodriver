@@ -60,27 +60,26 @@ class pressing_key_causes_scroll:
         self.key = key
 
     def __call__(self, driver):
-        locations = self._get_checkbox_locations(driver)
+        original_top = _wait_for_top_checkbox_location(driver)
 
         driver.body.send_keys(self.key)
 
-        new_locations = self._get_checkbox_locations(driver)
+        new_top = _wait_for_top_checkbox_location(driver)
+        return original_top != new_top
 
-        # For some reason, locations sometimes come back as (0, 0). Just ignore these.
-        for label in new_locations:
-            if new_locations[label] == dict(x=0, y=0):
-                locations[label] = dict(x=0, y=0)
-            elif locations[label] == dict(x=0, y=0):
-                new_locations[label] = dict(x=0, y=0)
 
-        return new_locations != locations
+def _get_checkbox_locations(driver):
+    locations = []
+    for checkbox in driver.visible_checkboxes:
+        try:
+            locations.append((checkbox.label, checkbox.element.location))
+        except StaleElementReferenceException:
+            pass
+    return locations
 
-    @staticmethod
-    def _get_checkbox_locations(driver):
-        locations = {}
-        for checkbox in driver.visible_checkboxes:
-            try:
-                locations[checkbox.label] = checkbox.element.location
-            except StaleElementReferenceException:
-                pass
-        return locations
+
+def _wait_for_top_checkbox_location(driver):
+    while True:
+        locations = _get_checkbox_locations(driver)
+        if locations != [] and locations[0][1] != {"x": 0, "y": 0}:
+            return locations
