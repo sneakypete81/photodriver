@@ -6,23 +6,22 @@ from selenium.webdriver.support.ui import WebDriverWait
 class PhotoScroller:
     def __init__(self, driver):
         self.driver = driver
+        self.wait = WebDriverWait(self.driver, timeout=2, poll_frequency=0.1)
 
     def get_visible_checkboxes(self):
         return list(self.driver.visible_checkboxes)
 
     def to_top(self):
-        wait = WebDriverWait(self.driver, timeout=2, poll_frequency=0.5)
         try:
-            wait.until(pressing_key_causes_scroll(Keys.HOME))
+            self.wait.until(pressing_key_causes_scroll(Keys.HOME))
         except TimeoutException:
             pass
 
         return self.get_visible_checkboxes()[0]
 
     def to_bottom(self):
-        wait = WebDriverWait(self.driver, timeout=2, poll_frequency=0.5)
         try:
-            wait.until(pressing_key_causes_scroll(Keys.END))
+            self.wait.until(pressing_key_causes_scroll(Keys.END))
         except TimeoutException:
             pass
 
@@ -35,8 +34,7 @@ class PhotoScroller:
                     if checkbox.date <= date:
                         return checkbox
 
-                wait = WebDriverWait(self.driver, timeout=2, poll_frequency=0.5)
-                wait.until(pressing_key_causes_scroll(Keys.PAGE_DOWN))
+                self.wait.until(pressing_key_causes_scroll(Keys.PAGE_DOWN))
 
         except TimeoutException:
             return self.get_visible_checkboxes()[-1]
@@ -48,8 +46,7 @@ class PhotoScroller:
                     if checkbox.date >= date:
                         return checkbox
 
-                wait = WebDriverWait(self.driver, timeout=2, poll_frequency=0.5)
-                wait.until(pressing_key_causes_scroll(Keys.PAGE_UP))
+                self.wait.until(pressing_key_causes_scroll(Keys.PAGE_UP))
 
         except TimeoutException:
             return self.get_visible_checkboxes()[0]
