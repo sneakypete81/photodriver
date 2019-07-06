@@ -18,7 +18,7 @@ def logged_in_driver():
     """Create a single driver object to be used for all tests in the module."""
     driver = Driver()
     driver_close = driver.close
-    driver.close = lambda: None
+    driver.close = driver.clear_download_dir
     try:
         photos = Photos(driver)
         photos.login("photodriver.test@gmail.com", PASSWORD)

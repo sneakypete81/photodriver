@@ -1,4 +1,7 @@
+from pathlib import Path
+import shutil
 import tempfile
+
 from selenium import webdriver
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.action_chains import ActionChains
@@ -16,6 +19,10 @@ class Driver(webdriver.Firefox):
             profile.set_preference(*preference)
 
         return super().__init__(profile)
+
+    def clear_download_dir(self):
+        shutil.rmtree(self.download_dir.name)
+        Path(self.download_dir.name).mkdir()
 
     def _get_firefox_preferences(self):
         return [
