@@ -59,9 +59,9 @@ class Photos:
                 pass
 
     def select_range(self, start_date, stop_date):
-        self.driver.body.click()
-        checkboxes = self.scroll.get_visible_checkboxes()
+        self.driver.shift_click(self.driver.body)
 
+        checkboxes = self.scroll.get_visible_checkboxes()
         if len(checkboxes) == 0:
             return 0
 
