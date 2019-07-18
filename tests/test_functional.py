@@ -1,4 +1,3 @@
-from datetime import date
 from pathlib import Path
 
 from hamcrest import assert_that, is_
@@ -7,7 +6,6 @@ import pytest
 import photodriver
 from photodriver.driver import Driver
 from photodriver.photos import Photos
-from .test_images import photo_list
 
 TEST_COOKIE_FILE = ".test-cookies"
 
@@ -34,15 +32,8 @@ def patched_driver(logged_in_driver, monkeypatch):
     monkeypatch.setattr(photodriver.photodriver, "Driver", lambda: logged_in_driver)
 
 
-@pytest.mark.functional
-@pytest.mark.parametrize(
-    "date_range, expected_filenames",
-    [
-        ((None, None), photo_list.FILENAMES),
-        ((date(1990, 1, 1), date(2050, 1, 1)), photo_list.FILENAMES),
-    ],
-)
 class TestFunctional:
+    @pytest.mark.functional
     def test_download(self, tmp_path, patched_driver, date_range, expected_filenames):
         photodriver.run(
             output_path=tmp_path,
