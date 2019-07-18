@@ -16,6 +16,10 @@ def run(output_path, start_date, stop_date, cookie_file=None):
         photos.save_cookies(cookie_file)
 
         count = photos.select_range(start_date, stop_date)
+        if count == 0:
+            print("No photos to download.")
+            return
+
         print(f"Downloading {count} photos...")
         photos.download_selected_photos(output_path)
 

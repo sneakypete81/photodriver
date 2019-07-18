@@ -72,6 +72,9 @@ class Photos:
         else:
             start_checkbox = self.scroll.up_to_checkbox(start_date)
 
+        if stop_date is not None and start_checkbox.date >= stop_date:
+            return 0
+
         start_checkbox.click()
 
         if len(checkboxes) == 1:
