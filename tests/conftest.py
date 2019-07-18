@@ -40,6 +40,7 @@ def generate_functional_tests(metafunc):
         ((None, None), photo_list.FILENAMES),
         ((date(1990, 1, 1), date(2050, 1, 1)), photo_list.FILENAMES),
         ((None, date(2018, 1, 1)), []),
+        ((None, date(2018, 1, 2)), photo_list.FILENAMES[0:2]),
     ]
 
     random_tests = create_random_functional_tests()
