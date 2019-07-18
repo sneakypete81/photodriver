@@ -1,6 +1,8 @@
 import tempfile
 from selenium import webdriver
 from selenium.common.exceptions import StaleElementReferenceException
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 
 from .checkbox import Checkbox
 
@@ -34,7 +36,7 @@ class Driver(webdriver.Firefox):
         )
         for element in elements:
             try:
-                yield Checkbox(element)
+                yield Checkbox(self, element)
             except StaleElementReferenceException:
                 pass
 
@@ -42,3 +44,16 @@ class Driver(webdriver.Firefox):
     def selection_count(self):
         element = self.find_element_by_xpath("//span[contains(text(), ' selected')]")
         return int(element.text.split(" ")[0])
+
+    def click(self, element):
+        element.click()
+
+    def shift_click(self, element):
+        actions = ActionChains(self)
+        actions.move_to_element(element)
+        actions.key_down(Keys.SHIFT)
+        actions.pause(0.5)
+        actions.click(element)
+        actions.pause(0.5)
+        actions.key_up(Keys.SHIFT)
+        actions.perform()
