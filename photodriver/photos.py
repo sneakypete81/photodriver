@@ -26,13 +26,13 @@ class Photos:
         if email is not None:
             self.driver.find_element_by_id("identifierId").send_keys(email + Keys.ENTER)
 
-            if password is not None:
-                WebDriverWait(self.driver, 60).until(
-                    EC.visibility_of_element_located((By.NAME, "password"))
-                )
-                self.driver.find_element_by_name("password").send_keys(
-                    password + Keys.ENTER
-                )
+        if password is not None:
+            WebDriverWait(self.driver, 60).until(
+                EC.visibility_of_element_located((By.NAME, "password"))
+            )
+            password_field = self.driver.find_element_by_name("password")
+            password_field.send_keys(password)
+            self.driver.find_element_by_id("passwordNext").click()
 
         if self.driver.title != self.TITLE:
             print("Please sign in to your account using the browser...")
