@@ -27,16 +27,42 @@ def checkboxes():
     ]
 
 
+class MockPhotoScroller:
+    def __init__(self, checkboxes):
+        self._checkboxes = checkboxes
+
+    def get_visible_checkboxes(self):
+        return self._checkboxes
+
+    def to_top(self):
+        return self._checkboxes[0]
+
+    def to_bottom(self):
+        return self._checkboxes[-1]
+
+    def down_to_checkbox(self, date):
+        matches = [checkbox for checkbox in self._checkboxes if checkbox.date <= date]
+        if matches:
+            return matches[0]
+        else:
+            return self._checkboxes[-1]
+
+    def up_to_checkbox(self, date):
+        matches = [checkbox for checkbox in self._checkboxes if checkbox.date >= date]
+        if matches:
+            return matches[-1]
+        else:
+            return self._checkboxes[0]
+
+
 @patch("photodriver.photos.PhotoScroller", autospec=True, spec_set=True)
 class TestSelectRange:
     def test_all_photos_are_selected_if_dates_are_unspecified(
         self, PhotoScroller, checkboxes
     ):
-        driver = Mock(Driver)
-        PhotoScroller(driver).get_visible_checkboxes.return_value = checkboxes
-        PhotoScroller(driver).to_top.return_value = checkboxes[0]
-        PhotoScroller(driver).to_bottom.return_value = checkboxes[-1]
+        PhotoScroller.return_value = MockPhotoScroller(checkboxes)
 
+        driver = Mock(Driver)
         photos = Photos(driver)
         photos.select_range(None, None)
 
@@ -55,28 +81,9 @@ class TestSelectRange:
     def test_photos_are_selected_between_two_dates(
         self, PhotoScroller, checkboxes, date_range, checkbox_range
     ):
+        PhotoScroller.return_value = MockPhotoScroller(checkboxes)
+
         driver = Mock(Driver)
-        PhotoScroller(driver).get_visible_checkboxes.return_value = checkboxes
-        PhotoScroller(driver).to_top.return_value = checkboxes[0]
-        PhotoScroller(driver).to_bottom.return_value = checkboxes[-1]
-
-        def first_matching_checkbox(date):
-            matches = [checkbox for checkbox in checkboxes if checkbox.date <= date]
-            if matches:
-                return matches[0]
-            else:
-                return checkboxes[-1]
-
-        def last_matching_checkbox(date):
-            matches = [checkbox for checkbox in checkboxes if checkbox.date >= date]
-            if matches:
-                return matches[-1]
-            else:
-                return checkboxes[0]
-
-        PhotoScroller(driver).down_to_checkbox.side_effect = first_matching_checkbox
-        PhotoScroller(driver).up_to_checkbox.side_effect = last_matching_checkbox
-
         photos = Photos(driver)
         photos.select_range(*date_range)
 
