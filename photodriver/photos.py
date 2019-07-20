@@ -72,6 +72,9 @@ class Photos:
         else:
             start_checkbox = self.scroll.up_to_checkbox(start_date)
 
+        if start_date is not None and start_checkbox.date < start_date:
+            return 0
+
         if stop_date is not None and start_checkbox.date >= stop_date:
             return 0
 
@@ -87,7 +90,8 @@ class Photos:
             self.scroll.up_to_checkbox(stop_date)
             stop_checkbox = self.scroll.down_to_checkbox(stop_date - one_day)
 
-        stop_checkbox.shift_click()
+        if start_checkbox.element != stop_checkbox.element:
+            stop_checkbox.shift_click()
 
         return self.driver.selection_count
 

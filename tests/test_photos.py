@@ -70,16 +70,25 @@ class TestSelectRange:
         checkboxes[0].shift_click.assert_called()
 
     @pytest.mark.parametrize(
-        "date_range, checkbox_range",
+        "date_range, expected_shift_click, expected_click",
         [
-            ((date(2019, 10, 1), date(2019, 12, 1)), (0, 7)),
-            ((date(2019, 11, 2), date(2019, 11, 7)), (1, 6)),
-            ((date(2019, 11, 3), date(2019, 11, 6)), (2, 5)),
-            ((date(2019, 11, 4), date(2019, 11, 5)), (2, 3)),
+            ((date(2019, 10, 1), date(2019, 12, 1)), [0], [7]),
+            ((date(2019, 11, 2), date(2019, 11, 7)), [1], [6]),
+            ((date(2019, 11, 3), date(2019, 11, 6)), [2], [5]),
+            ((date(2019, 11, 4), date(2019, 11, 5)), [2], [3]),
+            ((date(2019, 10, 1), date(2019, 11, 1)), [], []),
+            ((date(2019, 10, 1), date(2019, 11, 2)), [], [7]),
+            ((date(2019, 11, 7), date(2019, 12, 1)), [], [0]),
+            ((date(2019, 11, 8), date(2019, 12, 1)), [], []),
         ],
     )
     def test_photos_are_selected_between_two_dates(
-        self, PhotoScroller, checkboxes, date_range, checkbox_range
+        self,
+        PhotoScroller,
+        checkboxes,
+        date_range,
+        expected_shift_click,
+        expected_click,
     ):
         PhotoScroller.return_value = MockPhotoScroller(checkboxes)
 
@@ -94,5 +103,5 @@ class TestSelectRange:
             i for i in range(len(checkboxes)) if checkboxes[i].click.called
         ]
 
-        assert_that(shift_clicked_checkboxes, is_([checkbox_range[0]]))
-        assert_that(clicked_checkboxes, is_([checkbox_range[1]]))
+        assert_that(shift_clicked_checkboxes, is_(expected_shift_click))
+        assert_that(clicked_checkboxes, is_(expected_click))
