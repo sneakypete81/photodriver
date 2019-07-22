@@ -41,6 +41,7 @@ def generate_functional_tests(metafunc):
         ((date(1990, 1, 1), date(2050, 1, 1)), photo_list.FILENAMES),
         ((None, date(2018, 1, 1)), []),
         ((None, date(2018, 1, 2)), photo_list.FILENAMES[0:2]),
+        ((date(2018, 6, 1), None), []),
         ((date(2018, 5, 31), None), [photo_list.FILENAMES[-1]]),
     ]
 
