@@ -1,6 +1,7 @@
 from datetime import timedelta
 from pathlib import Path
 import pickle
+import shutil
 from zipfile import ZipFile
 
 from selenium.common.exceptions import InvalidCookieDomainException
@@ -96,19 +97,37 @@ class Photos:
         return self.driver.selection_count
 
     def download_selected_photos(self, output_path):
+        self.driver.clear_download_dir()
+        download_path = Path(self.driver.download_dir.name)
+
         self.driver.body.send_keys(Keys.SHIFT + "D")
-        download_file = Path(self.driver.download_dir.name) / "Photos.zip"
 
         wait = WebDriverWait(self.driver, timeout=60, poll_frequency=0.1)
-        wait.until(download_complete(download_file))
+        wait.until(download_complete(download_path))
 
-        ZipFile(download_file).extractall(output_path)
+        files = list(download_path.iterdir())
+
+        if files == [download_path / "Photos.zip"]:
+            self._extract_and_delete_zip(files[0])
+            files = list(download_path.iterdir())
+
+        for f in files:
+            shutil.copy(f, output_path)
+
+    @staticmethod
+    def _extract_and_delete_zip(zip):
+        ZipFile(zip).extractall(zip.parent)
+        zip.unlink()
 
 
 class download_complete:
-    def __init__(self, download_file):
-        self.download_file = download_file
+    def __init__(self, download_dir):
+        self.download_dir = Path(download_dir)
 
     def __call__(self, _):
-        part_files = list(self.download_file.parent.glob("*.part"))
-        return self.download_file.exists() and part_files == []
+        files = list(self.download_dir.iterdir())
+        if files == []:
+            return False
+        if any([f.suffix == ".part" for f in files]):
+            return False
+        return True

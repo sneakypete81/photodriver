@@ -29,7 +29,10 @@ class Driver(webdriver.Firefox):
             ("browser.download.folderList", 2),
             ("browser.download.dir", self.download_dir.name),
             ("browser.download.useDownloadDir", True),
-            ("browser.helperApps.neverAsk.saveToDisk", "application/zip"),
+            (
+                "browser.helperApps.neverAsk.saveToDisk",
+                "application/zip;image/jpeg;image/png",
+            ),
         ]
 
     @property
