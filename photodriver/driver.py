@@ -41,9 +41,12 @@ class Driver(webdriver.Firefox):
 
     @property
     def visible_checkboxes(self):
+        self.implicitly_wait(5)
         elements = self.find_elements_by_xpath(
             "//div[contains(@aria-label, 'Photo - ')]"
         )
+        self.implicitly_wait(0)
+
         for element in elements:
             try:
                 yield Checkbox(self, element)
