@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 import pytest
 import random
 
@@ -88,4 +88,7 @@ def create_random_functional_test():
 
 def get_random_photo_date():
     index = random.randint(0, len(photo_list.DATES) - 1)
-    return photo_list.DATES[index]
+    date = photo_list.DATES[index]
+
+    offset = random.randint(-1, 1)
+    return date + timedelta(days=offset)
