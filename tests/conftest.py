@@ -1,5 +1,6 @@
 from datetime import date
 import pytest
+import random
 
 from .test_images import photo_list
 
@@ -7,6 +8,9 @@ from .test_images import photo_list
 def pytest_addoption(parser):
     parser.addoption(
         "--functional", action="store_true", default=False, help="run functional tests"
+    )
+    parser.addoption(
+        "--seed", action="store", default=None, help="random seed for functional tests"
     )
 
 
@@ -44,7 +48,8 @@ def generate_functional_tests(metafunc):
         ((date(2018, 5, 31), None), [photo_list.FILENAMES[-1]]),
     ]
 
-    random_tests = create_random_functional_tests()
+    seed = metafunc.config.getoption("--seed")
+    random_tests = create_random_functional_tests(seed)
 
     all_tests = fixed_tests + random_tests
 
@@ -55,5 +60,32 @@ def generate_functional_tests(metafunc):
     )
 
 
-def create_random_functional_tests():
-    return []
+def create_random_functional_tests(seed):
+    if seed is None:
+        seed = random.randint(0, 10000)
+
+    print(f"Using --seed={seed}")
+    random.seed(seed)
+
+    return [create_random_functional_test() for i in range(10)]
+
+
+def create_random_functional_test():
+    start_date = get_random_photo_date()
+    stop_date = get_random_photo_date()
+    if start_date > stop_date:
+        start_date, stop_date = stop_date, start_date
+
+    date_range = (start_date, stop_date)
+
+    expected_filenames = []
+    for i, photo_date in enumerate(photo_list.DATES):
+        if photo_date >= start_date and photo_date < stop_date:
+            expected_filenames.append(photo_list.FILENAMES[i])
+
+    return (date_range, expected_filenames)
+
+
+def get_random_photo_date():
+    index = random.randint(0, len(photo_list.DATES) - 1)
+    return photo_list.DATES[index]
