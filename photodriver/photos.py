@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta, MINYEAR
 from pathlib import Path
 import pickle
 import shutil
@@ -60,39 +60,33 @@ class Photos:
                 pass
 
     def select_range(self, start_date, stop_date):
-        self.driver.shift_click(self.driver.body)
+        if start_date is None:
+            first_date = date(day=1, month=1, year=MINYEAR)
+        else:
+            first_date = start_date
+
+        if stop_date is None:
+            last_date = date.today()
+        else:
+            last_date = stop_date - timedelta(days=1)
+
+        self._search(first_date, last_date)
 
         checkboxes = self.scroll.get_visible_checkboxes()
         if len(checkboxes) == 0:
             return 0
 
-        last_checkbox = self.scroll.to_bottom()
-
-        if start_date is None:
-            start_checkbox = last_checkbox
-        else:
-            start_checkbox = self.scroll.up_to_checkbox(start_date)
-
-        if start_date is not None and start_checkbox.date < start_date:
-            return 0
-
-        if stop_date is not None and start_checkbox.date >= stop_date:
-            return 0
-
-        start_checkbox.click()
+        self.driver.shift_click(self.driver.body)
+        top_checkbox = checkboxes[0]
+        self.scroll.focus(top_checkbox)
+        self.driver.body.send_keys(" ")
+        top_checkbox.click()
 
         if len(checkboxes) == 1:
             return 1
 
-        if stop_date is None:
-            stop_checkbox = self.scroll.to_top()
-        else:
-            one_day = timedelta(days=1)
-            self.scroll.up_to_checkbox(stop_date)
-            stop_checkbox = self.scroll.down_to_checkbox(stop_date - one_day)
-
-        if start_checkbox.element != stop_checkbox.element:
-            stop_checkbox.shift_click()
+        bottom_checkbox = self.scroll.to_bottom()
+        bottom_checkbox.shift_click()
 
         return self.driver.selection_count
 
@@ -113,6 +107,11 @@ class Photos:
 
         for f in files:
             shutil.copy(f, output_path)
+
+    def _search(self, first_date, last_date):
+        first_string = first_date.strftime("%-d %B %Y")
+        last_string = last_date.strftime("%-d %B %Y")
+        self.driver.get(self.URL + f"/search/{first_string} - {last_string}")
 
     @staticmethod
     def _extract_and_delete_zip(zip):

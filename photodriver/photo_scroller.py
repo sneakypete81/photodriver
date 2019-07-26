@@ -27,29 +27,9 @@ class PhotoScroller:
 
         return self.get_visible_checkboxes()[-1]
 
-    def down_to_checkbox(self, date):
-        try:
-            while True:
-                for checkbox in self.get_visible_checkboxes():
-                    if checkbox.date <= date:
-                        return checkbox
-
-                self.wait.until(pressing_key_causes_scroll(Keys.PAGE_DOWN))
-
-        except TimeoutException:
-            return self.get_visible_checkboxes()[-1]
-
-    def up_to_checkbox(self, date):
-        try:
-            while True:
-                for checkbox in reversed(self.get_visible_checkboxes()):
-                    if checkbox.date >= date:
-                        return checkbox
-
-                self.wait.until(pressing_key_causes_scroll(Keys.PAGE_UP))
-
-        except TimeoutException:
-            return self.get_visible_checkboxes()[0]
+    def focus(self, checkbox):
+        while checkbox.element.value_of_css_property("opacity") != "1":
+            self.driver.body.send_keys(Keys.TAB)
 
 
 class pressing_key_causes_scroll:
@@ -78,5 +58,5 @@ def _get_checkbox_locations(driver):
 def _wait_for_top_checkbox_location(driver):
     while True:
         locations = _get_checkbox_locations(driver)
-        if locations != [] and locations[0][1] != {"x": 0, "y": 0}:
+        if locations:
             return locations
