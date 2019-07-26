@@ -9,7 +9,7 @@ import photo_list
 
 THIS_DIR = Path(__file__).parent
 
-for (date, filename) in zip(photo_list.DATES, photo_list.FILENAMES):
+for (date, filename) in zip(photo_list.DATETIMES, photo_list.FILENAMES):
     dest_file = THIS_DIR / filename
     shutil.copyfile(THIS_DIR / "test.jpg", dest_file)
     exif = piexif.dump(

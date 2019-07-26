@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-DATES = [
+DATETIMES = [
     datetime(2018, 1, 1, 9, 0, 0),
     datetime(2018, 1, 1, 10, 0, 0),
     datetime(2018, 1, 2, 9, 0, 0),
@@ -41,4 +41,5 @@ DATES = [
     datetime(2018, 5, 31, 9, 0, 0),
 ]
 
-FILENAMES = [date.strftime("test-%Y%m%d-%H%M%S.jpg") for date in DATES]
+DATES = [d.date() for d in DATETIMES]
+FILENAMES = [d.strftime("test-%Y%m%d-%H%M%S.jpg") for d in DATETIMES]
