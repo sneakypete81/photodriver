@@ -55,12 +55,12 @@ class Driver(webdriver.Firefox):
     def click(self, element):
         element.click()
 
-    def shift_click(self, element):
+    def shift_click(self, element, pause_seconds=0.1):
         actions = ActionChains(self)
         actions.move_to_element(element)
         actions.key_down(Keys.SHIFT)
-        actions.pause(0.5)
+        actions.pause(pause_seconds)
         actions.click(element)
-        actions.pause(0.5)
+        actions.pause(pause_seconds)
         actions.key_up(Keys.SHIFT)
         actions.perform()
