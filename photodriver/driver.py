@@ -39,8 +39,7 @@ class Driver(webdriver.Firefox):
     def body(self):
         return self.find_element_by_tag_name("body")
 
-    @property
-    def visible_checkboxes(self):
+    def get_visible_checkboxes(self):
         self.implicitly_wait(5)
         elements = self.find_elements_by_xpath(
             "//div[contains(@aria-label, 'Photo - ')]"

@@ -9,7 +9,7 @@ class PhotoScroller:
         self.wait = WebDriverWait(self.driver, timeout=2, poll_frequency=0.1)
 
     def get_visible_checkboxes(self):
-        return list(self.driver.visible_checkboxes)
+        return list(self.driver.get_visible_checkboxes())
 
     def to_top(self):
         try:
@@ -47,7 +47,7 @@ class pressing_key_causes_scroll:
 
 def _get_checkbox_locations(driver):
     locations = []
-    for checkbox in driver.visible_checkboxes:
+    for checkbox in driver.get_visible_checkboxes():
         try:
             locations.append((checkbox.label, checkbox.element.location))
         except StaleElementReferenceException:
