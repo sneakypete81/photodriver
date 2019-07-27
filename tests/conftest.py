@@ -6,11 +6,10 @@ from .test_images import photo_list
 
 
 def pytest_addoption(parser):
+    parser.addoption("--functional", action="store_true", help="run functional tests")
+    parser.addoption("--seed", default=None, help="random seed for functional tests")
     parser.addoption(
-        "--functional", action="store_true", default=False, help="run functional tests"
-    )
-    parser.addoption(
-        "--seed", action="store", default=None, help="random seed for functional tests"
+        "--headless", action="store_true", help="Run functional tests in headless mode"
     )
 
 

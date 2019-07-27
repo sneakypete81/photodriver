@@ -6,19 +6,23 @@ from selenium import webdriver
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
 
 from .checkbox import Checkbox
 
 
 class Driver(webdriver.Firefox):
-    def __init__(self):
+    def __init__(self, headless=False):
         self.download_dir = tempfile.TemporaryDirectory(prefix="photodriver_")
 
         profile = webdriver.FirefoxProfile()
         for preference in self._get_firefox_preferences():
             profile.set_preference(*preference)
 
-        return super().__init__(profile)
+        options = Options()
+        options.headless = headless
+
+        return super().__init__(profile, options=options)
 
     def clear_download_dir(self):
         shutil.rmtree(self.download_dir.name)

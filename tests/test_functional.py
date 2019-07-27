@@ -13,9 +13,10 @@ PASSWORD = (Path(__file__).parent / ".functional.password").read_text().strip()
 
 
 @pytest.fixture(scope="module")
-def logged_in_driver():
+def logged_in_driver(pytestconfig):
     """Create a single driver object to be used for all tests in the module."""
-    driver = Driver()
+    headless = pytestconfig.getoption("headless")
+    driver = Driver(headless=headless)
     driver_close = driver.close
     driver.close = driver.clear_download_dir
     try:
