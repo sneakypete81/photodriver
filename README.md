@@ -33,12 +33,11 @@ Then you can use the following:
 
 ```sh
   poetry run photodriver # Run your locally modified photodriver
+  poetry run tox         # Run all checks across all Python versions
+
+  poetry run pytest      # Run unit tests
   poetry run flake8      # Run the linter
   poetry run black .     # Run the autoformatter
-  poetry run pytest      # Run unit tests
-
-  # Not supported yet:
-  #poetry run tox    # Run all checks across all Python versions
 ```
 
 ### PyTest Options
