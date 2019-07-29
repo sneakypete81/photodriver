@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from pathlib import Path
 import shutil
 import tempfile
@@ -12,7 +13,7 @@ from .checkbox import Checkbox
 
 
 class Driver(webdriver.Firefox):
-    def __init__(self, headless=False):
+    def __init__(self, headless=False, default_implicit_wait_seconds=2):
         self.download_dir = tempfile.TemporaryDirectory(prefix="photodriver_")
 
         profile = webdriver.FirefoxProfile()
@@ -22,7 +23,9 @@ class Driver(webdriver.Firefox):
         options = Options()
         options.headless = headless
 
-        return super().__init__(profile, options=options)
+        super().__init__(profile, options=options)
+
+        self.implicitly_wait(default_implicit_wait_seconds)
 
     def clear_download_dir(self):
         shutil.rmtree(self.download_dir.name)
@@ -44,11 +47,10 @@ class Driver(webdriver.Firefox):
         return self.find_element_by_tag_name("body")
 
     def get_visible_checkboxes(self):
-        self.implicitly_wait(5)
-        elements = self.find_elements_by_xpath(
-            "//div[contains(@aria-label, 'Photo - ')]"
-        )
-        self.implicitly_wait(0)
+        with self.implicit_wait_context(5):
+            elements = self.find_elements_by_xpath(
+                "//div[contains(@aria-label, 'Photo - ')]"
+            )
 
         for element in elements:
             try:
@@ -73,3 +75,14 @@ class Driver(webdriver.Firefox):
         actions.pause(pause_seconds)
         actions.key_up(Keys.SHIFT)
         actions.perform()
+
+    def implicitly_wait(self, timeout_seconds):
+        self._implicit_wait_timeout = timeout_seconds
+        super().implicitly_wait(timeout_seconds)
+
+    @contextmanager
+    def implicit_wait_context(self, timeout_seconds):
+        original_timeout = self._implicit_wait_timeout
+        self.implicitly_wait(timeout_seconds)
+        yield
+        self.implicitly_wait(original_timeout)
