@@ -16,13 +16,8 @@ class Driver(webdriver.Firefox):
     def __init__(self, headless=False, default_implicit_wait_seconds=2):
         self.download_dir = tempfile.TemporaryDirectory(prefix="photodriver_")
 
-        profile = webdriver.FirefoxProfile()
-        for preference in self._get_firefox_preferences():
-            profile.set_preference(*preference)
-
-        options = Options()
-        options.headless = headless
-
+        profile = _profile(self.download_dir.name)
+        options = _options(headless)
         super().__init__(profile, options=options)
 
         self.implicitly_wait(default_implicit_wait_seconds)
@@ -30,17 +25,6 @@ class Driver(webdriver.Firefox):
     def clear_download_dir(self):
         shutil.rmtree(self.download_dir.name)
         Path(self.download_dir.name).mkdir()
-
-    def _get_firefox_preferences(self):
-        return [
-            ("browser.download.folderList", 2),
-            ("browser.download.dir", self.download_dir.name),
-            ("browser.download.useDownloadDir", True),
-            (
-                "browser.helperApps.neverAsk.saveToDisk",
-                "application/zip;image/jpeg;image/png",
-            ),
-        ]
 
     @property
     def body(self):
@@ -86,3 +70,28 @@ class Driver(webdriver.Firefox):
         self.implicitly_wait(timeout_seconds)
         yield
         self.implicitly_wait(original_timeout)
+
+
+def _profile(download_path):
+    profile = webdriver.FirefoxProfile()
+
+    preferences = [
+        ("browser.download.folderList", 2),
+        ("browser.download.dir", download_path),
+        ("browser.download.useDownloadDir", True),
+        (
+            "browser.helperApps.neverAsk.saveToDisk",
+            "application/zip;image/jpeg;image/png",
+        ),
+    ]
+
+    for preference in preferences:
+        profile.set_preference(*preference)
+
+    return profile
+
+
+def _options(headless):
+    options = Options()
+    options.headless = headless
+    return options
