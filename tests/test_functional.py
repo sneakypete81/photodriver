@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 from hamcrest import assert_that, is_
 import pytest
@@ -9,7 +10,12 @@ from photodriver.photos import Photos
 
 TEST_COOKIE_FILE = ".test-cookies"
 
-PASSWORD = (Path(__file__).parent / ".functional.password").read_text().strip()
+
+def get_test_password():
+    try:
+        return os.environ["PHOTODRIVER_FUNCTIONAL_PASSWORD"]
+    except KeyError:
+        return (Path(__file__).parent / ".functional.password").read_text().strip()
 
 
 @pytest.fixture(scope="module")
@@ -21,7 +27,7 @@ def logged_in_driver(pytestconfig):
     driver.close = driver.clear_download_dir
     try:
         photos = Photos(driver)
-        photos.login("photodriver.test@gmail.com", PASSWORD)
+        photos.login("photodriver.test@gmail.com", get_test_password())
         yield driver
     finally:
         driver_close()
