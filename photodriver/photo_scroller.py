@@ -1,3 +1,5 @@
+import time
+
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -27,9 +29,15 @@ class PhotoScroller:
 
         return self.get_visible_checkboxes()[-1]
 
-    def focus(self, checkbox):
+    def focus(self, checkbox, timeout_seconds=10):
+        start_time = time.time()
+
         while checkbox.element.value_of_css_property("opacity") != "1":
             self.driver.body.send_keys(Keys.TAB)
+
+            time.sleep(0.1)
+            if time.time() - start_time > timeout_seconds:
+                raise ScrollError("Could not move focus to checkbos")
 
 
 class pressing_key_causes_scroll:
@@ -55,8 +63,16 @@ def _get_checkbox_locations(driver):
     return locations
 
 
-def _wait_for_top_checkbox_location(driver):
-    while True:
-        locations = _get_checkbox_locations(driver)
+def _wait_for_top_checkbox_location(driver, timeout_seconds=10):
+    start_time = time.time()
+
+    while time.time() - start_time > timeout_seconds:
+        locations = _get_checkbox_locations(driver)[0]
         if locations:
             return locations
+
+    return []
+
+
+class ScrollError(Exception):
+    pass

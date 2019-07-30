@@ -37,7 +37,7 @@ class Photos:
 
         if self.driver.title != self.TITLE:
             print("Please sign in to your account using the browser...")
-            WebDriverWait(self.driver, 600).until(EC.title_is(self.TITLE))
+            WebDriverWait(self.driver, 60).until(EC.title_is(self.TITLE))
 
     def save_cookies(self, filename):
         if not self.driver.current_url.startswith(self.URL):
